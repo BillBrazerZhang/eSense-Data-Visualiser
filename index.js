@@ -1,60 +1,17 @@
 var express = require('express');
 var path = require('path');
-var log4js = require('log4js');
-var noble = require('noble')
-var earbud = null
-var createBuffer = require('audio-buffer-from')
-var format = require('audio-format')
-const portAudio = require('naudiodon');
+//var log4js = require('log4js');
+//var earbud = null
+//var createBuffer = require('audio-buffer-from')
+//var format = require('audio-format')
+//const portAudio = require('naudiodon');
 var utils = require('./utils');
-
-var earbudName = "";
-var mic_rate = 8000;
-
-// IMU configuration default values 
-var accel_range = utils.AccRange.G_4;        // unit: g
-var gyro_range = utils.GyroRange.DEG_500;    // unit: degrees per second
-var gyro_lpf = utils.GyroLPF.BW_5;
-var acc_lpf = utils.AccLPF.BW_5;
-
-// Sensitivity factors to convert ADC sensor values to different units
-var acc_factor = utils.getAccSensitivityFactor(accel_range)
-var gyro_factor = utils.getGyroSensitivityFactor(gyro_range)
-
-var bleScanEnabled = false;
-var eSenseConnecting = false;
-
-// For offset calibration
-var gyro_sum_axis = [0, 0, 0];
-var acc_sum_axis = [0, 0, 0];
-var samples_count = 0;
-const CAL_SAMPLES_COUNT = 200;
-var gx_offset = 0;
-var gy_offset = 0;
-var gz_offset = 0;
-var ax_offset = 0;
-var ay_offset = 0;
-var az_offset = 0;
-
-var control_characteristic = null;
-var data_characteristic = null;
-var sensor_notification_handler = null;
-var sensor_config_characteristic = null;
-
-// Variable to hold a reference to the audio input object
-var audio_input = null
-
-var logger = log4js.getLogger('[eSense-Recorder]');
-logger.level = 'INFO'
-
-// Print all audio devices
-logger.info(portAudio.getDevices());
 
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-app.use(express.static(path.join(__dirname, 'public'), { etag: false, maxAge: 100 }));
+app.use(express.static(path.join(__dirname, 'public'), { etag: false, maxAge: 100 })); //serve static files with absolute path of the directory
 
 io.on('connection', function (socket) {
 	logger.info('socket client ' + socket.id + ' is connected');
@@ -116,11 +73,11 @@ io.on('connection', function (socket) {
 });
 
 app.get("/", function (req, res) {
-	res.sendFile(path.join(__dirname, '/public', 'index.html'));
+	res.sendFile(path.join(__dirname, '/public', 'index.html'));   //send file to client FrontEnd
 });
 
 http.listen(5000, function () {
-	logger.info('eSense-Recorder is listening on port : 5000');
+	console.log('IMU-recorder is listening on port : 5000');
 });
 
 function subscribeToButtonEvents(characteristic) {
